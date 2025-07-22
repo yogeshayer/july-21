@@ -3,7 +3,8 @@ class ApiClient {
   private token: string | null = null
 
   constructor() {
-    this.baseUrl = process.env.NODE_ENV === "production" ? "https://your-domain.com" : "http://localhost:3000"
+    // Use relative URLs in production, localhost in development
+    this.baseUrl = process.env.NODE_ENV === "production" ? "" : "http://localhost:3000"
   }
 
   setToken(token: string) {
