@@ -3,8 +3,9 @@ class ApiClient {
   private token: string | null = null
 
   constructor() {
-    // Use relative URLs in production, localhost in development
-    this.baseUrl = process.env.NODE_ENV === "production" ? "" : "http://localhost:3000"
+    // Use relative URLs for both production and development
+    // This automatically uses the correct port and protocol
+    this.baseUrl = ""
   }
   setToken(token: string) {
     this.token = token
@@ -42,14 +43,25 @@ class ApiClient {
       },
     }
 
-    const response = await fetch(`${this.baseUrl}/api${endpoint}`, config)
+    const url = `${this.baseUrl}/api${endpoint}`
+    console.log(`API Request: ${options.method || 'GET'} ${url}`)
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: "Network error" }))
-      throw new Error(error.error || "Request failed")
+    try {
+      const response = await fetch(url, config)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Network error" }))
+        console.error(`API Error: ${response.status}`, errorData)
+        throw new Error(errorData.error || `Request failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log(`API Success: ${options.method || 'GET'} ${url}`, data)
+      return data
+    } catch (error) {
+      console.error(`API Request Failed: ${options.method || 'GET'} ${url}`, error)
+      throw error
     }
-
-    return response.json()
   }
 
   // Auth methods
@@ -67,6 +79,11 @@ class ApiClient {
   }
 
   async register(userData: any) {
+    // Clean and format invitation code if present
+    if (userData.invitationCode) {
+      userData.invitationCode = userData.invitationCode.trim().toUpperCase()
+    }
+
     const result = await this.request("/auth/register", {
       method: "POST",
       body: JSON.stringify(userData),

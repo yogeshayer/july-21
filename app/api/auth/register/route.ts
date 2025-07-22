@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getDatabase } from "@/lib/mongodb"
 import { signToken } from "@/lib/auth"
-import type { User, Household } from "@/lib/models"
+import type { Household, User } from "@/lib/models"
+import { getDatabase } from "@/lib/mongodb"
+import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,11 +38,11 @@ export async function POST(request: NextRequest) {
 
       // Find household with matching invitation code
       const household = await db.collection<Household>("households").findOne({
-        invitationCode,
+        invitationCode: invitationCode.trim().toUpperCase(), // Ensure consistent format
       })
 
       if (!household) {
-        return NextResponse.json({ error: "Invalid invitation code" }, { status: 400 })
+        return NextResponse.json({ error: "Invalid invitation code. Please check the code and try again." }, { status: 400 })
       }
 
       adminId = household.adminId
