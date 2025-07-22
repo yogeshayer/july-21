@@ -33,7 +33,7 @@ import {
     Users,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 export default function HomePage() {
@@ -57,14 +57,32 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  // Temporarily disabled to fix redirect loop
-  // useEffect(() => {
-  //   // Check if user is already logged in
-  //   const token = apiClient.getToken()
-  //   if (token) {
-  //     router.push("/dashboard")
-  //   }
-  // }, [router])
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = apiClient.getToken()
+    const currentUser = localStorage.getItem("currentUser")
+    
+    // Only redirect if both token AND user data exist and are valid
+    if (token && currentUser) {
+      try {
+        const userData = JSON.parse(currentUser)
+        if (userData.id && userData.email) {
+          router.push("/dashboard")
+        } else {
+          // Invalid user data - clear everything
+          apiClient.clearToken()
+          localStorage.removeItem("currentUser")
+        }
+      } catch (error) {
+        // Invalid JSON - clear everything
+        apiClient.clearToken()
+        localStorage.removeItem("currentUser")
+      }
+    } else if (token && !currentUser) {
+      // Stale token without user data - clear it
+      apiClient.clearToken()
+    }
+  }, [router])
 
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {

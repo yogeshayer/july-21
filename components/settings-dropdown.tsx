@@ -1,16 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings, User, LogOut } from "lucide-react"
+import { LogOut, Settings, User } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { toast } from "sonner"
 
 export function SettingsDropdown() {
@@ -37,6 +37,12 @@ export function SettingsDropdown() {
       // Clear session data
       localStorage.removeItem("currentUser")
       localStorage.removeItem("tempUserData")
+      localStorage.removeItem("auth-token") // Clear the auth token
+      localStorage.removeItem("sessionStart") // Clear session start time
+
+      // Clear API client token
+      const { apiClient } = await import("@/lib/api-client")
+      apiClient.clearToken()
 
       // Clear any cached data
       const keys = Object.keys(localStorage)
@@ -47,7 +53,9 @@ export function SettingsDropdown() {
       })
 
       toast.success("Logged out successfully")
-      router.push("/")
+      
+      // Force page reload to clear React state and prevent redirect loops
+      window.location.href = "/"
     } catch (error) {
       console.error("Logout error:", error)
       toast.error("Error during logout, but you've been logged out")
