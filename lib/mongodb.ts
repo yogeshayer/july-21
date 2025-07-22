@@ -1,14 +1,12 @@
 import { MongoClient, type Db } from "mongodb"
 
-// Add SSL parameters to URI if not already present
-const baseUri = process.env.MONGODB_URI || ""
-const uri = baseUri.includes('ssl=') ? baseUri : 
-  `${baseUri}${baseUri.includes('?') ? '&' : '?'}ssl=true&retryWrites=true&w=majority`
+const uri = process.env.MONGODB_URI || ""
 
 const options = {
-  tls: true,
-  tlsAllowInvalidCertificates: false,
-  tlsAllowInvalidHostnames: false,
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  family: 4, // Use IPv4, skip trying IPv6
 }
 
 if (!process.env.MONGODB_URI) {
