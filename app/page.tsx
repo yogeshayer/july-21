@@ -1,40 +1,40 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  Home,
-  Mail,
-  Lock,
-  UserIcon,
-  Crown,
-  Users,
-  CheckCircle,
-  Eye,
-  EyeOff,
-  Key,
-  Send,
-  AlertCircle,
-} from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Separator } from "@/components/ui/separator"
 import { VisualEffects } from "@/components/visual-effects"
-import { toast } from "sonner"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { apiClient } from "@/lib/api-client"
+import {
+    AlertCircle,
+    CheckCircle,
+    Crown,
+    Eye,
+    EyeOff,
+    Home,
+    Key,
+    Lock,
+    Mail,
+    Send,
+    UserIcon,
+    Users,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function HomePage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -57,13 +57,14 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const token = apiClient.getToken()
-    if (token) {
-      router.push("/dashboard")
-    }
-  }, [router])
+  // Temporarily disabled to fix redirect loop
+  // useEffect(() => {
+  //   // Check if user is already logged in
+  //   const token = apiClient.getToken()
+  //   if (token) {
+  //     router.push("/dashboard")
+  //   }
+  // }, [router])
 
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {
