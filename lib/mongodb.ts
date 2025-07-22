@@ -1,10 +1,14 @@
 import { MongoClient, type Db } from "mongodb"
 
-// Force SSL parameters in connection string for Vercel compatibility
-const baseUri = process.env.MONGODB_URI || ""
-const uri = `${baseUri}${baseUri.includes('?') ? '&' : '?'}ssl=true&authSource=admin&retryWrites=true&w=majority&tlsAllowInvalidCertificates=true`
+const uri = process.env.MONGODB_URI || ""
 
-const options = {}
+// Minimal options for Vercel compatibility
+const options = {
+  maxPoolSize: 1,
+  bufferMaxEntries: 0,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}
 
 if (!process.env.MONGODB_URI) {
   console.warn('MONGODB_URI not found in environment variables')
