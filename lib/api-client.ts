@@ -6,7 +6,6 @@ class ApiClient {
     // Use relative URLs in production, localhost in development
     this.baseUrl = process.env.NODE_ENV === "production" ? "" : "http://localhost:3000"
   }
-
   setToken(token: string) {
     this.token = token
     if (typeof window !== "undefined") {
