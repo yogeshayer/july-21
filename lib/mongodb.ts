@@ -1,7 +1,15 @@
 import { MongoClient, type Db } from "mongodb"
 
-const uri = process.env.MONGODB_URI || ""
-const options = {}
+// Add SSL parameters to URI if not already present
+const baseUri = process.env.MONGODB_URI || ""
+const uri = baseUri.includes('ssl=') ? baseUri : 
+  `${baseUri}${baseUri.includes('?') ? '&' : '?'}ssl=true&retryWrites=true&w=majority`
+
+const options = {
+  tls: true,
+  tlsAllowInvalidCertificates: false,
+  tlsAllowInvalidHostnames: false,
+}
 
 if (!process.env.MONGODB_URI) {
   console.warn('MONGODB_URI not found in environment variables')
