@@ -1,11 +1,11 @@
 import { MongoClient, type Db } from "mongodb"
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
-}
-
-const uri = process.env.MONGODB_URI
+const uri = process.env.MONGODB_URI || ""
 const options = {}
+
+if (!process.env.MONGODB_URI) {
+  console.warn('MONGODB_URI not found in environment variables')
+}
 
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
@@ -17,15 +17,19 @@ if (process.env.NODE_ENV === "development") {
     _mongoClientPromise?: Promise<MongoClient>
   }
 
-  if (!globalWithMongo._mongoClientPromise) {
+  if (!globalWithMongo._mongoClientPromise && uri) {
     client = new MongoClient(uri, options)
     globalWithMongo._mongoClientPromise = client.connect()
   }
-  clientPromise = globalWithMongo._mongoClientPromise
+  clientPromise = globalWithMongo._mongoClientPromise || Promise.reject(new Error('MongoDB URI not configured'))
 } else {
   // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri, options)
-  clientPromise = client.connect()
+  if (uri) {
+    client = new MongoClient(uri, options)
+    clientPromise = client.connect()
+  } else {
+    clientPromise = Promise.reject(new Error('MongoDB URI not configured'))
+  }
 }
 
 // Export a module-scoped MongoClient promise. By doing this in a
@@ -33,6 +37,9 @@ if (process.env.NODE_ENV === "development") {
 export default clientPromise
 
 export async function getDatabase(): Promise<Db> {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MongoDB URI not configured')
+  }
   const client = await clientPromise
   return client.db("ChoreBoard")
 }
