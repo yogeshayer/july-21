@@ -5,9 +5,7 @@ const uri = process.env.MONGODB_URI || ""
 // Minimal options for Vercel compatibility
 const options = {
   maxPoolSize: 1,
-  bufferMaxEntries: 0,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
 }
 
 if (!process.env.MONGODB_URI) {
